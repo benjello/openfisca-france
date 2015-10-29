@@ -188,10 +188,10 @@
     <NODE code="capital" description="Revenus du capital">
       <CODE code="glob" description="Taux global" format="percent">
         <VALUE deb="2000-01-01" fin="2003-12-31" valeur="0.075" />
-        <VALUE deb="2004-01-01" fin="2013-12-31" valeur="0.082" />
+        <VALUE deb="2004-01-01"  valeur="0.082" />
       </CODE>
       <CODE code="deduc" description="dont CSG déductible" format="percent">
-        <VALUE deb="2012-01-01" fin="2013-12-31" valeur=".051" />
+        <VALUE deb="2012-01-01"  valeur=".051" />
         <VALUE deb="2004-01-01" fin="2011-12-31" valeur=".058" />
         <VALUE deb="2000-01-01" fin="2003-12-31" valeur=".051" />
       </CODE>
@@ -258,10 +258,10 @@
       <VALUE deb="2011-01-01" fin="2011-12-31" valeur=".034" />
       <VALUE deb="2012-01-01" fin="2013-12-31" valeur=".045" />
     </CODE>
-    <CODE code="add_pat" description="Contribution additionnelle solidarité autonomie (revenus du patrimoine)" format="percent">
+    <CODE code="add_pat" description="Contribution additionnelle au prélèvement social (revenus du patrimoine)" format="percent">
       <VALUE deb="2004-07-01" fin="2013-12-31" valeur=".003" />
     </CODE>
-    <CODE code="add_ret" description="Contribution additionnelle solidarité autonomie (pensions de retraites, pré-retraites et invalidité)" format="percent">
+    <CODE code="add_ret" description="Contribution additionnelle au prélèvement social (pensions de retraites, pré-retraites et invalidité)" format="percent">
       <VALUE deb="2013-04-01" fin="2013-12-31" valeur=".003" />
     </CODE>
     <CODE code="rsa" description="Contribution au financement du revenu de solidarité active" format="percent">
@@ -2418,7 +2418,7 @@
             <VALUE deb="2006-01-01" fin="2014-12-31" valeur="0.71" />
           </CODE>
           <CODE code="min" description="Minimum" format="integer" type="monetary">
-            <VALUE deb="2001-01-01" fin="2013-12-31" valeur="305" />
+            <VALUE deb="2001-01-01" valeur="305" />
           </CODE>
           <CODE code="max" description="Maximum" format="integer" type="monetary">
             <VALUE deb="2001-01-01" fin="2001-12-31" valeur="76225" />
@@ -2433,10 +2433,10 @@
           <CODE code="taux" description="Taux" format="percent">
             <VALUE deb="1991-01-01" fin="2001-12-31" valeur="0.50" />
             <VALUE deb="2002-01-01" fin="2005-12-31" valeur="0.52" />
-            <VALUE deb="2006-01-01" fin="2014-12-31" valeur="0.50" />  # Check 2014
+            <VALUE deb="2006-01-01" fin="2014-12-31" valeur="0.50" />
           </CODE>
           <CODE code="min" description="Minimum" format="integer" type="monetary">
-            <VALUE deb="2002-01-01" fin="2013-12-31" valeur="305" />
+            <VALUE deb="2002-01-01" valeur="305" />
           </CODE>
           <CODE code="max" description="Maximum" format="integer" type="monetary">
             <VALUE deb="2001-01-01" fin="2001-12-31" valeur="26679" />
@@ -2498,7 +2498,7 @@
           <VALUE deb="2014-01-01" fin="2014-12-31" valeur="5726" /> # TODO : Quel article de loi
         </CODE>
       </NODE>
-      <NODE code="acc75a" description="Frais d'acceuil d'une personne de plus de 75 ans">
+      <NODE code="acc75a" description="Frais d'accueil d'une personne de plus de 75 ans">
         <CODE code="max" description="Maximum par personne" format="integer" type="monetary">
           <VALUE deb="2001-01-01" fin="2001-12-31" valeur="2826" />
           <VALUE deb="2002-01-01" fin="2002-12-31" valeur="2862" />
@@ -3847,7 +3847,7 @@
     </NODE>
     <NODE code="autre" description="Variables pour scénario de réforme">
       <CODE code="finpfl" description="Indicatrice pour imposition des revenus du capital au barème" format="bool">
-        <VALUE deb="2001-01-01" fin="2013-12-31" valeur="0" />
+        <VALUE deb="2001-01-01" valeur="0" />
       </CODE>
     </NODE>
     <BAREME code="cehr" description="Contribution exceptionnelle sur les hauts revenus" type="monetary">
@@ -4043,7 +4043,7 @@
         <VALUE deb="2003-07-01" fin="2014-03-31" valeur="20" />
       </CODE>
       <CODE code="seuil_rev_taux" description="Seuil de revenu pour être considéré comme enfant à charge (en smic)" format="percent">
-        <VALUE deb="2001-07-01" fin="2014-03-31" valeur=".55" />
+        <VALUE deb="2001-07-01" fin="2015-03-31" valeur=".55" />
       </CODE>
       <NODE code="taux" description="Taux (% de la BMAF)">
         <CODE code="enf_seul" description="Un seul enfant à charge (DOM)" format="percent">
