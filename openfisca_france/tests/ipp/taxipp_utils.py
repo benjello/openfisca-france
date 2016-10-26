@@ -8,6 +8,9 @@ import pkg_resources
 from numpy import array
 
 
+from openfisca_france_data.erfs.scenario import ErfsSurveyScenario as SurveyScenario
+
+
 directory = os.path.join(
     pkg_resources.get_distribution('OpenFisca-France').location,
     'openfisca_france',
@@ -15,10 +18,22 @@ directory = os.path.join(
     'ipp',
     )
 
-for stata_file in os.listdir(directory):
-    df = pd.read_stata(os.path.join(directory, stata_file))
 
-    break
+
+def list_dta(selection):
+    input = []
+    output = []
+    ipp_stata_files_directory = os.path.join(directory, 'base_IPP')
+    for filename in os.listdir(ipp_stata_files_directory):
+        file_path = os.path.join(ipp_stata_files_directory, filename)
+        if (u"base_IPP_input" in filename) and filename.endswith(selection + ".dta"):
+            input.append(file_path)
+        elif ("base_IPP_output" in filename) and filename.endswith(selection + ".dta"):
+            output.append(file_path)
+
+    return input, output
+
+
 
 variables_mapping_file_path = os.path.join(directory, 'correspondances_variables.xlsx')
 
@@ -32,12 +47,12 @@ def build_openfisca_by_ipp_variables():
         names = pd.ExcelFile(variables_mapping_file_path).parse(onglet)
         return dict(array(names.loc[names['equivalence'].isin([1, 5, 8]), ['var_TAXIPP', 'var_OF']]))
 
-    ipp2of_input_variables = _dic_corresp('input')
-    ipp2of_output_variables = _dic_corresp('output')
-    return ipp2of_input_variables, ipp2of_output_variables
+    openfisca_input_by_ipp_variables = _dic_corresp('input')
+    openfisca_output_by_ipp_variables = _dic_corresp('output')
+    return openfisca_input_by_ipp_variables, openfisca_output_by_ipp_variables
 
 
-def compare(path_dta_output, ipp2of_output_variables, param_scenario, simulation,
+def compare(path_dta_output, openfisca_output_by_ipp_variables, param_scenario, simulation,
         threshold = 1.5, verbose = True):
     '''
     Fonction qui comparent les calculs d'OF et et de TaxIPP
@@ -48,9 +63,9 @@ def compare(path_dta_output, ipp2of_output_variables, param_scenario, simulation
         ).reset_index()
     if 'salbrut' in param_scenario.items():
         if param_scenario['option'] == 'brut':
-            del ipp2of_output_variables['sal_brut']
-            del ipp2of_output_variables['chom_brut']
-            del ipp2of_output_variables['rst_brut']
+            del openfisca_output_by_ipp_variables['sal_brut']
+            del openfisca_output_by_ipp_variables['chom_brut']
+            del openfisca_output_by_ipp_variables['rst_brut']
     scenario = param_scenario['scenario']
     if 'activite' in param_scenario:
         act = param_scenario['activite']
@@ -174,8 +189,8 @@ def compare(path_dta_output, ipp2of_output_variables, param_scenario, simulation
 #                pdb.set_trace()
 
     pb_calcul = []
-    for ipp_var in check_list:  # in ipp2of_output_variables.keys():
-        of_var = ipp2of_output_variables[ipp_var]
+    for ipp_var in check_list:  # in openfisca_output_by_ipp_variables.keys():
+        of_var = openfisca_output_by_ipp_variables[ipp_var]
         of_var_holder = simulation.compute(of_var)
         _conflict_by_entity(simulation, of_var_holder, ipp_var, pb_calcul)
     if verbose:
@@ -183,7 +198,7 @@ def compare(path_dta_output, ipp2of_output_variables, param_scenario, simulation
     return pb_calcul
 
 
-def run_OF(ipp2of_input_variables, path_dta_input, param_scenario = None, dic = None,
+def run_OF(openfisca_input_by_ipp_variables, path_dta_input, param_scenario = None, dic = None,
            datesim = None, option = 'test_dta'):
     '''
     Lance le calculs sur OF à partir des cas-types issues de TaxIPP
@@ -222,28 +237,30 @@ def run_OF(ipp2of_input_variables, path_dta_input, param_scenario = None, dic = 
     if 'option' in param_scenario.keys() and param_scenario['option'] == 'brut':
         TaxBenefitSystem = init_country(start_from = "brut")
         tax_benefit_system = TaxBenefitSystem()
-        del ipp2of_input_variables['sal_irpp_old']
-        ipp2of_input_variables['sal_brut'] = 'salbrut'
-        ipp2of_input_variables['chom_brut'] = 'chobrut'
-        ipp2of_input_variables['pension_brut'] = 'rstbrut'
+        del openfisca_input_by_ipp_variables['sal_irpp_old']
+        openfisca_input_by_ipp_variables['sal_brut'] = 'salbrut'
+        openfisca_input_by_ipp_variables['chom_brut'] = 'chobrut'
+        openfisca_input_by_ipp_variables['pension_brut'] = 'rstbrut'
     else:
-        tax_benefit_system_class = init_country()
-        tax_benefit_system = tax_benefit_system_class()
-    openfisca_survey = build_input_OF(data_IPP, ipp2of_input_variables, tax_benefit_system)
+        from openfisca_france.tests.base import tax_benefit_system
+        tax_benefit_system = tax_benefit_system
+
+    openfisca_survey = build_input_OF(data_IPP, openfisca_input_by_ipp_variables, tax_benefit_system)
     openfisca_survey = openfisca_survey.fillna(0)  # .sort(['idfoy'])
 
     survey_scenario = SurveyScenario().init_from_data_frame(
         input_data_frame = openfisca_survey,
-        tax_benefit_system_class = tax_benefit_system_class,
+        tax_benefit_system = tax_benefit_system,
         year = datesim,
         )
     if option == 'list_dta':
         return survey_scenario.new_simulation(), param_scenario
     else:
+
         return survey_scenario.new_simulation()
 
 
-def build_input_OF(data, ipp2of_input_variables, tax_benefit_system):
+def build_input_OF(data, openfisca_input_by_ipp_variables, tax_benefit_system):
 
     def _qui(data, entity):
         qui = "qui" + entity
@@ -337,7 +354,7 @@ def build_input_OF(data, ipp2of_input_variables, tax_benefit_system):
         data.loc[(data['nbh'] / 12 <= 151) & (data['nbh'] / 12 > 77), 'partiel2'] = 1
         return data
 
-    data.rename(columns = ipp2of_input_variables, inplace = True)
+    data.rename(columns = openfisca_input_by_ipp_variables, inplace = True)
     data['quifoy'] = _qui(data, 'foy')
     min_idfoy = data["idfoy"].min()
     if min_idfoy > 0:
