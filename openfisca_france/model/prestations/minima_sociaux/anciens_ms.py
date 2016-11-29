@@ -163,7 +163,13 @@ class rsa_activite(Variable):
     def function(self, simulation, period):
         period = period
         rsa = simulation.calculate_add('rsa', period)
-        rmi = simulation.calculate_add('rmi', period)
+        activite = simulation.calculate('activite', period)
+        rsa_base_ressources = simulation.calculate_add('rsa_base_ressources', period)
+        rsa_socle = simulation.calculate_add('rsa_socle', period)
+        rsa_forfait_logement = simulation.calculate_add('rsa_forfait_logement', period)
+
+        rmi = (activite != 0) * (activite != 2) * (activite != 3) * (
+            max_(0, rsa_socle - rsa_forfait_logement - rsa_base_ressources))
 
         return period, max_(rsa - rmi, 0)
 
