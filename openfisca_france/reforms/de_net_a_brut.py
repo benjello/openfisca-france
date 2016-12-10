@@ -35,6 +35,7 @@ def calculate_net_from(salaire_de_base, simulation, period, requested_variable_n
 
     return net
 
+
 class salaire_de_base(Variable):
     column = columns.FloatCol
     entity = entities.Individu
